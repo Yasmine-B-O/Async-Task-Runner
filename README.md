@@ -1,2 +1,21 @@
-# Async-Task-Runner
-A JavaScript project that simulates task execution to compare sequential and parallel asynchronous processing using Promises and async/await.
+# Async Task Runner
+
+## 📌 Description
+This project demonstrates asynchronous programming in JavaScript using Promises and async/await.
+It allows the user to execute simulated tasks either sequentially or in parallel and compare execution times.
+
+## 🚀 Features
+- Add and remove tasks dynamically
+- Execute tasks sequentially or in parallel
+- Display execution time for each task
+- Show total execution time
+- Clean and simple user interface
+
+## 🛠 Technologies Used
+- HTML5
+- CSS3
+- JavaScript (ES6)
+- Promises & async/await
+
+## ▶️ How to Run
+1. Clone the repository:
