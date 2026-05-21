@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 1 - Async Task Runner</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #003366;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* --- Input row --- */
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: #003366;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+            background-color: #003366;
+        }
+
+        button:hover { background-color: #004080; }
+
+        /* --- Task list --- */
+        #taskList {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        #taskList li {
+            background: #fff;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #taskList li button {
+            background-color: #dc3545;
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        #taskList li button:hover { background-color: #b02a37; }
+
+        /* --- Controls --- */
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .controls select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .controls select:focus {
+            outline: none;
+            border-color: #003366;
+        }
+
+        .btn-execute {
+            background-color: #28a745;
+        }
+
+        .btn-execute:hover { background-color: #218838; }
+
+        /* --- Results --- */
+        #resultsArea {
+            min-height: 40px;
+            margin-bottom: 12px;
+        }
+
+        .result-item {
+            background: #fff;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            border-left: 4px solid #003366;
+        }
+
+        #totalTime {
+            font-weight: bold;
+            color: #003366;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Async Task Runner</h1>
+
+        <div class="input-row">
+            <input type="text" id="taskInput" placeholder="Task name (e.g. Download)">
+            <button onclick="addTask()">Add Task</button>
+        </div>
+
+        <ul id="taskList"></ul>
+
+        <div class="controls">
+            <select id="modeSelect">
+                <option value="sequential">Sequential</option>
+                <option value="parallel">Parallel</option>
+            </select>
+            <button class="btn-execute" onclick="startExecution()">Execute</button>
+        </div>
+
+        <div id="resultsArea"></div>
+        <p id="totalTime"></p>
+    </div>
+
+    <script>
+
+        let tasks = [];
+        //  add / remove tasks in the queue (given)
+        function addTask() {
+            const input = document.getElementById("taskInput");
+            const name = input.value.trim();
+            if (!name) { alert("Please enter a task name."); return; }
+            tasks.push(name);
+            input.value = "";
+            renderTaskList();
+        }
+
+        function removeTask(index) {
+            tasks.splice(index, 1);
+            renderTaskList();
+        }
+
+        function renderTaskList() {
+            const ul = document.getElementById("taskList");
+            ul.innerHTML = "";
+            tasks.forEach((t, i) => {
+                const li = document.createElement("li");
+                li.innerHTML = `${t} <button onclick="removeTask(${i})">✕</button>`;
+                ul.appendChild(li);
+            });
+        }
+
+        function simulateTask(name) {
+            //  FUNCTION 1 
+            let duration=Math.floor(Math.random()*3000)+1000;
+            const myPromise=new Promise((resolve)=>{
+                setTimeout(()=>{
+                    resolve({name:name,duration:duration});
+                },duration) 
+            });
+            return myPromise;
+        }
+
+        async function runSequential(tasks) {
+            //  FUNCTION 2 
+            const results=[];
+            for(const ele of tasks){//don't forget to declare loop variables
+               const result=await simulateTask(ele);
+               results.push(result);
+               displayResult(result);
+            }
+            return results;
+        }
+
+        async function runParallel(tasks) {
+            //  FUNCTION 3
+            let promises=tasks.map(x=>simulateTask(x));
+            const results=await Promise.all(promises);
+            results.forEach(result=>displayResult(result));
+            return results;
+        }
+
+        function displayResult(result) {
+            //  FUNCTION 4
+            const div=document.createElement("div");
+            div.classList.add("result-item");
+            div.textContent=`${result.name} - ${(result.duration/1000).toFixed(1)}s`;
+            const Area=document.getElementById("resultsArea");
+            Area.appendChild(div);
+        }
+        async function startExecution() {
+            //  FUNCTION 5
+            const mode=document.getElementById("modeSelect");
+            const resultsArea=document.getElementById("resultsArea");
+            resultsArea.innerHTML="";
+            const start=Date.now();
+            if(mode.value==="sequential"){
+                await runSequential(tasks);//don't forget await
+            }
+            else{
+                await runParallel(tasks);
+            }
+            const elapsed=Date.now()-start;
+            const totalTime=document.getElementById("totalTime")
+            totalTime.textContent=`Total:${(elapsed / 1000).toFixed(1)}s`;//convert ms-> seconds with 1 decimal place
+            
+        }
+    </script>
+
+</body>
+</html>
