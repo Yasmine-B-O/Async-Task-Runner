@@ -17,5 +17,4 @@ It allows the user to execute simulated tasks either sequentially or in parallel
 - JavaScript (ES6)
 - Promises & async/await
 
-## ▶️ How to Run
-1. Clone the repository:
+
